@@ -1,0 +1,12 @@
+# CLIP inference
+torch>=2.2
+torchvision>=0.17
+transformers>=4.40
+safetensors>=0.4
+
+# Web UI
+gradio>=4.44
+
+# Utilities
+pillow>=10.0
+numpy>=1.26

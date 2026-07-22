@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    image: flugmaschine/fashion-recommendation:latest
+    ports:
+      - "7860:7860"
+    environment:
+      VFR_HOST: "0.0.0.0"
+      VFR_PORT: "7860"
