@@ -7,6 +7,10 @@ safetensors>=0.4
 # Web UI
 gradio>=4.44
 
+# Web image search (outfit items)
+ddgs>=9.0
+httpx>=0.27
+
 # Utilities
 pillow>=10.0
 numpy>=1.26

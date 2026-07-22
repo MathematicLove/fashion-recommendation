@@ -7,12 +7,14 @@ matching items from the web.
 ## How it works
 
 1. Recognition. The input is encoded with CLIP (`openai/clip-vit-base-patch32`,
-   zero-shot, no fine-tuning). For an image, the garment type, color and style
-   are inferred by comparing its embedding to text prompts; for text, they are
-   parsed by keyword.
+   zero-shot, no fine-tuning). For an image, the garment type, color, style,
+   gender and age (adult/kids) are inferred by comparing its embedding to text
+   prompts; for text, they are parsed by keyword.
 2. Assembly. From the recognized role, complementary slots are chosen (for a top:
-   bottom, footwear, outerwear, accessory) and matching images are retrieved per
-   slot from the Openverse image API (no key, no authentication).
+   bottom, footwear, outerwear, accessory - never the same type). For each slot a
+   query is built from a style-appropriate garment type and a harmonizing color
+   (not a copy of the input color), scoped to the recognized gender and age, and
+   matching product photos are fetched via DuckDuckGo image search (no key).
 3. Output. Up to four outfits are shown, each as a row of images: the input item
    plus one web image per slot.
 
@@ -22,13 +24,13 @@ recognition, and all recommended items come from the web.
 ## Run with Python
 
 ```bash
-python3.13 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 
-Open http://127.0.0.1:7860. Requires network access.
+Open http://127.0.0.1:7860
 
 ## Run with Docker
 
@@ -50,10 +52,10 @@ Open http://127.0.0.1:7860. Or use `docker compose up` to build and run locally.
 
 ```text
 src/
-  config.py     roles, outfit slots, recognition vocabularies
+  config.py     roles, outfit slots, per-slot type/color tables, vocabularies
   model.py      CLIP wrapper (image and text embeddings)
-  analyze.py    input recognition: type / color / style / gender
-  recommend.py  outfit assembly from web images (Openverse)
+  analyze.py    input recognition: type / color / style / gender / age
+  recommend.py  outfit assembly via DuckDuckGo image search
 app.py          Gradio web UI
 Dockerfile      CPU inference image
 ```

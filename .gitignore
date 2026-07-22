@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+data/
+index/
+.gradio/
+.DS_Store
