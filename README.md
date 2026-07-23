@@ -4,6 +4,15 @@ Upload a photo of a single garment (or type a query). CLIP recognizes its type,
 color and style, and the app assembles several complete outfits by fetching
 matching items from the web.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/MathematicLove/fashion-recommendation/main/example/EXAMPLE_2.png"
+       width="600"
+       height="300"
+       alt="Fig.1: Example">
+</p>
+
+[Docker image link](https://hub.docker.com/r/flugmaschine/fashion-recommendation?tag=latest)
+
 ## How it works
 
 1. Recognition. The input is encoded with CLIP (`openai/clip-vit-base-patch32`,
