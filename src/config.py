@@ -186,6 +186,15 @@ NONFASHION_DISTRACTORS = [
 VERIFY_MIN_PROB = 0.30
 VERIFY_MIN_SIM = 0.20
 
+NONFASHION_OBJECTS = [
+    "an electronic device", "a computer keyboard", "a household appliance",
+    "a piece of furniture", "a bottle or a cup", "a food dish", "an animal",
+    "a plant", "a cosmetics product", "a book or a document", "a vehicle",
+    "a building", "a bare human face",
+]
+
+CLOTHING_MIN_PROB = 0.50
+
 INPUT_CATEGORY_TO_ROLE: dict[str, str] = {
     "a t-shirt": ROLE_TOP, "a shirt": ROLE_TOP, "a blouse": ROLE_TOP,
     "a top": ROLE_TOP, "a polo shirt": ROLE_TOP,

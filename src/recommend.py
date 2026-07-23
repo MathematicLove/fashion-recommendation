@@ -30,6 +30,7 @@ _CANDIDATES_PER_SLOT = 8
 _DOWNLOAD_WORKERS = 12
 _MAX_SIDE = (448, 448)
 _ENCODE_BATCH = 8
+_MAX_VARIANT_DEPTH = 4
 
 
 @dataclass(frozen=True)
@@ -95,11 +96,11 @@ def _conflicts(noun: str, banned: str) -> bool:
     return noun == banned or banned in noun or noun in banned
 
 
-def _regular_plans(a: Analysis, n_outfits: int) -> list[list[Slot]]:
+def _regular_plans(a: Analysis, n_outfits: int, start: int = 0) -> list[list[Slot]]:
     who = _audience(a.gender, a.age)
     banned = _input_noun(a)
     plans: list[list[Slot]] = []
-    for i in range(n_outfits):
+    for i in range(start, start + n_outfits):
         row: list[Slot] = []
         for role in config.OUTFIT_SLOTS.get(a.role, []):
             nouns = [n for n in _noun_options(role, a.style, a.gender) if not _conflicts(n, banned)]
@@ -290,6 +291,46 @@ def _collect(slots: list[Slot], need: Counter, relaxed: bool = False) -> dict[Sl
             out[slot] = [imgs[i] for i in order[:max(need[slot], 1)]]
         imgs.clear()
     return out
+
+
+def recommend_outfit(analysis: Analysis, index: int = 0) -> list:
+    """Build a single outfit variant.
+
+    Same planning and verification as ``recommend_outfits``, but only one plan is
+    searched for, so a result appears after a quarter of the web requests and CLIP
+    passes. ``index`` selects the variant: it walks the noun/color options for
+    regular items, and picks a deeper-ranked image for intimates (whose plan does
+    not vary).
+    """
+    if analysis.role in config.INTIMATE_ROLES:
+        plan = _intimate_slots(analysis)
+        depth = min(index + 1, _MAX_VARIANT_DEPTH)
+    else:
+        plans = _regular_plans(analysis, 1, start=index)
+        plan = plans[0] if plans else []
+        depth = 1
+    if not plan:
+        raise RuntimeError("Nothing to pair with this item.")
+
+    need: Counter = Counter({slot: depth for slot in plan})
+    slots = list(need)
+    pool = _collect(slots, need)
+    missing = [s for s in slots if s not in pool]
+    if missing:
+        pool.update(_collect(missing, need, relaxed=True))
+    if not pool:
+        raise RuntimeError("Could not retrieve matching images from the web. "
+                           "Check the network connection and try again.")
+
+    out_row = [(None, "your item")]
+    for slot in plan:
+        imgs = pool.get(slot)
+        if not imgs:
+            continue
+        out_row.append((imgs[index % len(imgs)], f"{slot.title}: {slot.color} {slot.noun}"))
+    if len(out_row) == 1:
+        raise RuntimeError("Could not assemble an outfit from the web results.")
+    return out_row
 
 
 def recommend_outfits(analysis: Analysis, n_outfits: int = 4) -> list[list]:

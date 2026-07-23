@@ -1,31 +1,28 @@
 # Fashion Recommendation
 
 Upload a photo of a single garment (or type a query). CLIP recognizes its type,
-color and style, and the app assembles several complete outfits by fetching
-matching items from the web.
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MathematicLove/fashion-recommendation/main/example/EXAMPLE_2.png"
-       width="600"
-       height="300"
-       alt="Fig.1: Example">
-</p>
-
-[Docker image link](https://hub.docker.com/r/flugmaschine/fashion-recommendation?tag=latest)
+color and style, and the app assembles a complete outfit by fetching matching
+items from the web.
 
 ## How it works
 
-1. Recognition. The input is encoded with CLIP (`openai/clip-vit-base-patch32`,
-   zero-shot, no fine-tuning). For an image, the garment type, color, style,
-   gender and age (adult/kids) are inferred by comparing its embedding to text
-   prompts; for text, they are parsed by keyword.
+1. Recognition. Exactly one input is used at a time: uploading a photo disables
+   the description field and vice versa. The input is encoded with CLIP
+   (`openai/clip-vit-base-patch32`, zero-shot, no fine-tuning). A photo is first
+   checked against the supported garment types and a set of everyday non-fashion
+   subjects; if it holds no garment, it is rejected before any search runs. Then
+   the garment type, color, style, gender and age (adult/kids) are inferred by
+   comparing its embedding to text prompts; for text, they are parsed by keyword.
 2. Assembly. From the recognized role, complementary slots are chosen (for a top:
    bottom, footwear, outerwear, accessory - never the same type). For each slot a
    query is built from a style-appropriate garment type and a harmonizing color
    (not a copy of the input color), scoped to the recognized gender and age, and
    matching product photos are fetched via DuckDuckGo image search (no key).
-3. Output. Up to four outfits are shown, each as a row of images: the input item
-   plus one web image per slot.
+3. Output. One outfit is shown at a time as a row of images: the input item plus
+   one web image per slot. Next builds the following variant (a different set of
+   garment types and colors), Previous goes back through the ones already built.
+   Up to five are kept; after that, "I did not like anything" drops them and
+   starts a new set from variants that have not been used yet.
 
 There is no local dataset and no training: the model is used only for zero-shot
 recognition, and all recommended items come from the web.

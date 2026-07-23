@@ -1,6 +1,7 @@
 """Input recognition (CLIP zero-shot for images, keyword parse for text)."""
 from __future__ import annotations
 from dataclasses import dataclass
+from functools import lru_cache
 import numpy as np
 from PIL import Image
 from . import config
@@ -28,21 +29,42 @@ class Analysis:
 def _best(sims: np.ndarray, labels: list[str]) -> str:
     return labels[int(sims.argmax())]
 
+@lru_cache(maxsize=8)
+def _label_vecs(template: str, labels: tuple[str, ...]) -> np.ndarray:
+    """Embeddings of a fixed label vocabulary; identical on every request, so cached."""
+    return get_encoder().encode_texts([template.format(x) for x in labels])
+
+def is_clothing(img_vec: np.ndarray) -> bool:
+    """True when the photo shows one of the garment types the app accepts.
+
+    The positives are the input categories themselves, so this shares the cached
+    embeddings with the recognition step; the negatives are everyday non-fashion
+    subjects. Photos of pets, food, rooms, devices and faces land far below the
+    threshold and are rejected before any web search is started.
+    """
+    cats = tuple(config.INPUT_CATEGORY_TO_ROLE)
+    others = tuple(config.NONFASHION_DISTRACTORS + config.NONFASHION_OBJECTS)
+    sims = np.concatenate([_label_vecs("a photo of {}", cats),
+                           _label_vecs("a photo of {}", others)]) @ img_vec
+    logits = 100.0 * sims
+    exp = np.exp(logits - logits.max())
+    probs = exp / exp.sum()
+    return float(probs[:len(cats)].sum()) >= config.CLOTHING_MIN_PROB
+
 def analyze_image(image: Image.Image, img_vec: np.ndarray | None = None) -> Analysis:
-    enc = get_encoder()
     if img_vec is None:
-        img_vec = enc.encode_images([image])[0]
+        img_vec = get_encoder().encode_images([image])[0]
     cat_labels = list(config.INPUT_CATEGORY_TO_ROLE.keys())
-    cat_vecs = enc.encode_texts([f"a photo of {c}" for c in cat_labels])
+    cat_vecs = _label_vecs("a photo of {}", tuple(cat_labels))
     category = _best(cat_vecs @ img_vec, cat_labels)
     role = config.INPUT_CATEGORY_TO_ROLE[category]
-    color_vecs = enc.encode_texts([f"a photo of {c} colored clothing" for c in config.COLOR_VOCAB])
+    color_vecs = _label_vecs("a photo of {} colored clothing", tuple(config.COLOR_VOCAB))
     color = _best(color_vecs @ img_vec, config.COLOR_VOCAB)
-    style_vecs = enc.encode_texts([f"a photo of {s} style clothing" for s in config.STYLE_VOCAB])
+    style_vecs = _label_vecs("a photo of {} style clothing", tuple(config.STYLE_VOCAB))
     style = _best(style_vecs @ img_vec, config.STYLE_VOCAB)
-    gender_vecs = enc.encode_texts([f"a photo of {g}'s clothing" for g in config.GENDER_VOCAB])
+    gender_vecs = _label_vecs("a photo of {}'s clothing", tuple(config.GENDER_VOCAB))
     gender = "Men" if _best(gender_vecs @ img_vec, config.GENDER_VOCAB) == "men" else "Women"
-    age_vecs = enc.encode_texts([f"a photo of {a} clothing" for a in config.AGE_VOCAB])
+    age_vecs = _label_vecs("a photo of {} clothing", tuple(config.AGE_VOCAB))
     age = _best(age_vecs @ img_vec, config.AGE_VOCAB)
     return Analysis(role, category, color, style, gender, age, "image")
 
