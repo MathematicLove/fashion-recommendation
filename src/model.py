@@ -16,6 +16,7 @@ class ClipEncoder:
 
     @staticmethod
     def _to_embeds(out) -> torch.Tensor:
+        # transformers >=5 returns an output object; <5 returns the tensor directly.
         return out if torch.is_tensor(out) else out["pooler_output"]
 
     @torch.no_grad()

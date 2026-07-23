@@ -40,23 +40,151 @@ OUTFIT_SLOTS: dict[str, list[str]] = {
     ROLE_ACC:    [ROLE_TOP, ROLE_BOTTOM, ROLE_FOOT, ROLE_OUTER],
 }
 
-SLOT_NOUN: dict[str, dict[str, str]] = {
-    ROLE_TOP:    {"casual": "t-shirt", "formal": "dress shirt", "sports": "sports t-shirt", "ethnic": "shirt"},
-    ROLE_BOTTOM: {"casual": "jeans", "formal": "trousers", "sports": "joggers", "ethnic": "trousers"},
-    ROLE_OUTER:  {"casual": "jacket", "formal": "blazer", "sports": "track jacket", "ethnic": "jacket"},
-    ROLE_FOOT:   {"casual": "sneakers", "formal": "formal shoes", "sports": "running shoes", "ethnic": "loafers"},
-    ROLE_ACC:    {"casual": "watch", "formal": "watch", "sports": "watch", "ethnic": "watch"},
-    ROLE_DRESS:  {"casual": "dress", "formal": "evening dress", "sports": "dress", "ethnic": "ethnic dress"},
+SLOT_NOUN_OPTIONS: dict[str, dict[str, list[str]]] = {
+    ROLE_TOP: {
+        "casual": ["t-shirt", "shirt", "sweatshirt", "polo shirt", "knit sweater"],
+        "formal": ["dress shirt", "button-up shirt", "fine knit sweater", "turtleneck"],
+        "sports": ["sports t-shirt", "training top", "performance tank top", "track top"],
+        "ethnic": ["kurta shirt", "embroidered shirt", "linen shirt", "tunic"],
+    },
+    ROLE_BOTTOM: {
+        "casual": ["jeans", "chino trousers", "cargo trousers", "corduroy trousers", "shorts"],
+        "formal": ["dress trousers", "tailored trousers", "pleated trousers", "wool trousers"],
+        "sports": ["joggers", "track pants", "training shorts", "sweatpants"],
+        "ethnic": ["linen trousers", "wide leg trousers", "embroidered trousers", "palazzo trousers"],
+    },
+    ROLE_OUTER: {
+        "casual": ["denim jacket", "bomber jacket", "leather jacket", "hoodie", "overshirt"],
+        "formal": ["blazer", "wool coat", "trench coat", "tailored jacket"],
+        "sports": ["track jacket", "windbreaker jacket", "puffer jacket", "zip hoodie"],
+        "ethnic": ["embroidered jacket", "linen jacket", "waistcoat", "long vest"],
+    },
+    ROLE_FOOT: {
+        "casual": ["sneakers", "leather boots", "loafers", "canvas shoes", "chelsea boots"],
+        "formal": ["oxford shoes", "derby shoes", "leather loafers", "monk strap shoes"],
+        "sports": ["running shoes", "training sneakers", "basketball shoes", "trail shoes"],
+        "ethnic": ["leather sandals", "embroidered loafers", "woven sandals", "mojari shoes"],
+    },
+    ROLE_ACC: {
+        "casual": ["wrist watch", "leather belt", "sunglasses", "backpack", "baseball cap"],
+        "formal": ["wrist watch", "leather belt", "leather briefcase", "silk tie", "cufflinks"],
+        "sports": ["sports watch", "gym backpack", "sports cap", "sweatband", "water bottle"],
+        "ethnic": ["beaded necklace", "leather sandal bag", "embroidered scarf", "bangle bracelet"],
+    },
+    ROLE_DRESS: {
+        "casual": ["day dress", "shirt dress", "sundress", "knit dress"],
+        "formal": ["evening dress", "cocktail dress", "gown"],
+        "sports": ["athletic dress", "tennis dress"],
+        "ethnic": ["embroidered dress", "kaftan dress", "anarkali dress"],
+    },
 }
 
-NEUTRAL_COLORS = {"black", "white", "grey", "navy blue", "beige", "brown", "cream", "silver", "khaki"}
-
-SLOT_COLOR: dict[str, dict[str, str]] = {
-    ROLE_BOTTOM: {"casual": "blue", "formal": "navy blue", "sports": "grey", "ethnic": "beige"},
-    ROLE_FOOT:   {"casual": "white", "formal": "black", "sports": "white", "ethnic": "brown"},
-    ROLE_ACC:    {"casual": "silver", "formal": "silver", "sports": "black", "ethnic": "gold"},
-    ROLE_TOP:    {"casual": "white", "formal": "white", "sports": "white", "ethnic": "cream"},
+WOMENS_NOUN_OPTIONS: dict[str, dict[str, list[str]]] = {
+    ROLE_TOP: {
+        "casual": ["blouse", "t-shirt", "knit top", "cropped sweatshirt", "cardigan"],
+        "formal": ["silk blouse", "dress blouse", "fine knit top", "turtleneck top"],
+        "sports": ["sports top", "training tank top", "performance t-shirt"],
+        "ethnic": ["embroidered blouse", "tunic top", "kurti"],
+    },
+    ROLE_BOTTOM: {
+        "casual": ["jeans", "denim skirt", "chino trousers", "midi skirt", "shorts"],
+        "formal": ["tailored trousers", "pencil skirt", "midi skirt", "wide leg trousers"],
+        "sports": ["leggings", "joggers", "training shorts", "yoga pants"],
+        "ethnic": ["palazzo trousers", "long skirt", "embroidered skirt", "wide leg trousers"],
+    },
+    ROLE_FOOT: {
+        "casual": ["sneakers", "ankle boots", "ballet flats", "loafers", "sandals"],
+        "formal": ["heeled pumps", "block heel shoes", "pointed flats", "heeled sandals"],
+        "sports": ["running shoes", "training sneakers", "trail shoes"],
+        "ethnic": ["embroidered flats", "leather sandals", "beaded sandals"],
+    },
+    ROLE_ACC: {
+        "casual": ["handbag", "wrist watch", "sunglasses", "tote bag", "silk scarf"],
+        "formal": ["clutch bag", "wrist watch", "pearl necklace", "leather handbag"],
+        "sports": ["sports watch", "gym backpack", "sports cap", "crossbody bag"],
+        "ethnic": ["beaded necklace", "embroidered clutch", "bangle bracelet", "embroidered scarf"],
+    },
 }
+
+NEUTRAL_COLORS = {"black", "white", "grey", "navy blue", "beige", "brown", "cream", "silver", "khaki", "gold"}
+
+WARM_COLORS = {"red", "orange", "yellow", "brown", "maroon", "olive", "khaki", "gold", "beige", "cream"}
+COOL_COLORS = {"blue", "navy blue", "green", "purple", "teal", "pink"}
+
+SLOT_COLOR_OPTIONS: dict[str, dict[str, list[str]]] = {
+    ROLE_BOTTOM: {
+        "casual": ["blue", "black", "grey", "beige", "khaki", "navy blue"],
+        "formal": ["navy blue", "black", "grey", "brown"],
+        "sports": ["grey", "black", "navy blue", "olive"],
+        "ethnic": ["beige", "cream", "white", "gold"],
+    },
+    ROLE_FOOT: {
+        "casual": ["white", "black", "grey", "brown"],
+        "formal": ["black", "brown", "grey"],
+        "sports": ["white", "black", "grey"],
+        "ethnic": ["brown", "gold", "beige"],
+    },
+    ROLE_ACC: {
+        "casual": ["silver", "black", "brown", "gold"],
+        "formal": ["silver", "gold", "black"],
+        "sports": ["black", "grey", "silver"],
+        "ethnic": ["gold", "silver", "brown"],
+    },
+    ROLE_TOP: {
+        "casual": ["white", "black", "grey", "beige", "navy blue"],
+        "formal": ["white", "black", "grey", "cream"],
+        "sports": ["white", "black", "grey"],
+        "ethnic": ["cream", "white", "gold", "beige"],
+    },
+    ROLE_OUTER: {
+        "casual": ["black", "navy blue", "grey", "brown", "khaki"],
+        "formal": ["black", "navy blue", "grey"],
+        "sports": ["black", "grey", "navy blue"],
+        "ethnic": ["brown", "gold", "beige"],
+    },
+}
+
+ACC_COLOR_BY_KEYWORD: list[tuple[str, list[str]]] = [
+    ("watch", ["silver", "black", "gold", "brown"]),
+    ("necklace", ["gold", "silver"]),
+    ("bracelet", ["gold", "silver"]),
+    ("bangle", ["gold", "silver"]),
+    ("cufflinks", ["silver", "gold"]),
+    ("sunglasses", ["black", "brown", "grey"]),
+    ("belt", ["black", "brown", "beige"]),
+    ("briefcase", ["brown", "black"]),
+    ("backpack", ["black", "grey", "navy blue", "khaki"]),
+    ("bag", ["black", "brown", "beige", "navy blue"]),
+    ("clutch", ["black", "gold", "beige"]),
+    ("tie", ["navy blue", "black", "maroon", "grey"]),
+    ("scarf", ["cream", "beige", "navy blue", "maroon"]),
+    ("cap", ["black", "navy blue", "white", "grey"]),
+    ("sweatband", ["black", "white", "grey"]),
+    ("bottle", ["black", "white", "silver"]),
+]
+
+ROLE_DESCRIPTION: dict[str, str] = {
+    ROLE_TOP: "a shirt or t-shirt",
+    ROLE_BOTTOM: "trousers, jeans or a skirt",
+    ROLE_OUTER: "a jacket or a coat",
+    ROLE_FOOT: "a pair of shoes",
+    ROLE_ACC: "a fashion accessory",
+    ROLE_DRESS: "a dress",
+    ROLE_UNDER: "underwear",
+    ROLE_SOCKS: "a pair of socks",
+}
+
+NONFASHION_DISTRACTORS = [
+    "a cat", "a dog", "a flower", "a bouquet of flowers", "a houseplant",
+    "a landscape photograph", "a plate of food", "a car", "a building",
+    "a room interior", "a piece of furniture", "a close-up of a human face",
+    "a text banner with words", "a company logo", "an abstract pattern",
+    "a smartphone", "a chart or infographic", "a collage of many products",
+    "a cosmetics bottle", "a toy",
+]
+
+VERIFY_MIN_PROB = 0.30
+VERIFY_MIN_SIM = 0.20
 
 INPUT_CATEGORY_TO_ROLE: dict[str, str] = {
     "a t-shirt": ROLE_TOP, "a shirt": ROLE_TOP, "a blouse": ROLE_TOP,
@@ -82,6 +210,11 @@ TEXT_KEYWORDS: list[tuple[str, str]] = [
     ("briefs", "briefs"), ("underwear", "underwear"), ("underpants", "underwear"),
     ("socks", "socks"), ("sock", "socks"),
 ]
+
+CATEGORY_GENDER: dict[str, str] = {
+    "a dress": "Women", "a skirt": "Women", "a blouse": "Women",
+    "heels": "Women", "a jumpsuit": "Women", "leggings": "Women",
+}
 
 UNDERWEAR_GENDER: dict[str, str] = {
     "lingerie": "Women", "a bra": "Women", "panties": "Women",

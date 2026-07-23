@@ -1,11 +1,11 @@
 # CLIP inference
 torch>=2.2
 torchvision>=0.17
-transformers>=4.40
+transformers>=5.0,<6
 safetensors>=0.4
 
 # Web UI
-gradio>=4.44
+gradio>=6.0,<7
 
 # Web image search (outfit items)
 ddgs>=9.0

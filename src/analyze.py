@@ -65,6 +65,6 @@ def analyze_text(text: str) -> Analysis:
     gender = "Women" if any(w in t for w in ("women", "woman", "female", "girl", "lady", "ladies")) else (
         "Men" if any(w in t for w in ("men", "man", "male", "boy")) else None)
     if gender is None:
-        gender = config.UNDERWEAR_GENDER.get(category)
+        gender = config.UNDERWEAR_GENDER.get(category) or config.CATEGORY_GENDER.get(category)
     age = "kids" if any(w in t for w in ("kids", "kid", "child", "boy", "girl")) else "adult"
     return Analysis(role, category, color, style, gender, age, "text")

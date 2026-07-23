@@ -16,8 +16,10 @@ THEME = gr.themes.Soft(
     primary_hue=gr.themes.colors.slate,
     secondary_hue=gr.themes.colors.gray,
     neutral_hue=gr.themes.colors.gray,
-    font=["system-ui", "Inter", "Arial", "sans-serif"],
-    font_mono=["ui-monospace", "Consolas", "monospace"],
+    font=[gr.themes.LocalFont("system-ui"), gr.themes.GoogleFont("Inter"),
+          gr.themes.LocalFont("Arial"), gr.themes.LocalFont("sans-serif")],
+    font_mono=[gr.themes.LocalFont("ui-monospace"), gr.themes.LocalFont("Consolas"),
+               gr.themes.LocalFont("monospace")],
 ).set(
     body_background_fill="#f6f6f7",
     block_background_fill="#ffffff",
@@ -43,6 +45,7 @@ CSS = """
 footer {display: none !important;}
 """
 
+
 def _gallery(row: list, input_image: Image.Image | None):
     media = []
     for item, caption in row:
@@ -53,8 +56,10 @@ def _gallery(row: list, input_image: Image.Image | None):
             media.append((item, caption))
     return media
 
+
 def _hide_all():
     return [gr.update(visible=False, value=None) for _ in range(MAX_OUTFITS)]
+
 
 def run(image: Image.Image | None, text_query: str):
     text_query = (text_query or "").strip()
@@ -89,8 +94,9 @@ def run(image: Image.Image | None, text_query: str):
             updates.append(gr.update(visible=False, value=None))
     yield updates
 
+
 def build_ui() -> gr.Blocks:
-    with gr.Blocks(title="Fashion Recommendation", theme=THEME, css=CSS) as demo:
+    with gr.Blocks(title="Fashion Recommendation") as demo:
         with gr.Column(elem_id="intro"):
             gr.Markdown(
                 "# Fashion Recommendation\n"
@@ -112,11 +118,13 @@ def build_ui() -> gr.Blocks:
                                elem_classes="outfit-card")
                     for _ in range(MAX_OUTFITS)
                 ]
+        # Progress is shown only on the galleries, so it never overlaps the status text.
         run_btn.click(run, inputs=[image_in, text_in], outputs=[header_md, *galleries],
                       show_progress="minimal", show_progress_on=galleries)
     return demo
 
+
 if __name__ == "__main__":
     server_name = os.environ.get("VFR_HOST", "127.0.0.1")
     server_port = int(os.environ.get("VFR_PORT", "7860"))
-    build_ui().launch(server_name=server_name, server_port=server_port)
+    build_ui().launch(server_name=server_name, server_port=server_port, theme=THEME, css=CSS)
