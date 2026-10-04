@@ -1,6 +1,7 @@
 """Input recognition (CLIP zero-shot for images, keyword parse for text)."""
 from __future__ import annotations
 from dataclasses import dataclass
+import re
 from functools import lru_cache
 import numpy as np
 from PIL import Image
@@ -68,25 +69,31 @@ def analyze_image(image: Image.Image, img_vec: np.ndarray | None = None) -> Anal
     age = _best(age_vecs @ img_vec, config.AGE_VOCAB)
     return Analysis(role, category, color, style, gender, age, "image")
 
+def _has_word(text: str, word: str) -> bool:
+    """Whole-word match (optional plural), so "red" is not found in "tailored"
+    nor "man" in "romantic"."""
+    return re.search(rf"\b{re.escape(word)}(?:e?s)?\b", text) is not None
+
+
 def analyze_text(text: str) -> Analysis:
-    t = f" {text.lower()} "
+    t = text.lower()
     category = None
     for kw, cat in config.TEXT_KEYWORDS:
-        if kw in t:
+        if _has_word(t, kw):
             category = cat
             break
     if category is None:
         for cat in config.INPUT_CATEGORY_TO_ROLE:
-            if cat.replace("a ", "").strip() in t:
+            if _has_word(t, cat.replace("a ", "").strip()):
                 category = cat
                 break
     category = category or "a top"
     role = config.INPUT_CATEGORY_TO_ROLE.get(category, config.ROLE_TOP)
-    color = next((c for c in config.COLOR_VOCAB if c in t), "black")
-    style = next((s for s in config.STYLE_VOCAB if s in t), "casual")
-    gender = "Women" if any(w in t for w in ("women", "woman", "female", "girl", "lady", "ladies")) else (
-        "Men" if any(w in t for w in ("men", "man", "male", "boy")) else None)
+    color = next((c for c in config.COLOR_VOCAB if _has_word(t, c)), "black")
+    style = next((s for s in config.STYLE_VOCAB if _has_word(t, s)), "casual")
+    gender = "Women" if any(_has_word(t, w) for w in ("women", "woman", "female", "girl", "lady", "ladies")) else (
+        "Men" if any(_has_word(t, w) for w in ("men", "man", "male", "boy")) else None)
     if gender is None:
         gender = config.UNDERWEAR_GENDER.get(category) or config.CATEGORY_GENDER.get(category)
-    age = "kids" if any(w in t for w in ("kids", "kid", "child", "boy", "girl")) else "adult"
+    age = "kids" if any(_has_word(t, w) for w in ("kids", "kid", "child", "boy", "girl")) else "adult"
     return Analysis(role, category, color, style, gender, age, "text")
