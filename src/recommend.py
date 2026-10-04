@@ -15,7 +15,7 @@ import httpx
 import numpy as np
 from ddgs import DDGS
 from PIL import Image
-from . import config
+from . import config, safe_http
 from .analyze import Analysis
 from .model import get_encoder
 
@@ -202,17 +202,21 @@ def _slot_urls(slot: Slot, count: int, relaxed: bool = False) -> list[str]:
     return urls[:count]
 
 
+_MAX_PIXELS = 50_000_000
+
+
 def _download(url: str) -> Image.Image | None:
+    got = safe_http.fetch(_HTTP, url)
+    if got is None:
+        return None
+    content, content_type = got
     try:
-        r = _HTTP.get(url)
-        if r.status_code != 200 or not r.content:
-            return None
-        ct = r.headers.get("content-type", "").lower()
+        ct = content_type.lower()
         if "image" not in ct and not url.lower().split("?")[0].endswith(
                 (".jpg", ".jpeg", ".png", ".webp", ".gif")):
             return None
-        img = Image.open(io.BytesIO(r.content))
-        if img.width < 100 or img.height < 100:
+        img = Image.open(io.BytesIO(content))
+        if img.width < 100 or img.height < 100 or img.width * img.height > _MAX_PIXELS:
             return None
         img.draft("RGB", _MAX_SIDE)
         img.load()
